@@ -157,9 +157,15 @@ pip install -e ".[dev]"
 pytest
 ```
 
-## Part of the Engram Ecosystem
+## Part of Engram Pro
 
-Synapse is the communication backbone for [Engram](https://github.com/engram-memory/engram) — the universal memory layer for AI agents. Together they enable persistent, communicating multi-agent systems.
+Synapse is the communication backbone for [Engram](https://engram-ai.dev) — the universal memory layer for AI agents. Together they enable persistent, communicating multi-agent systems.
+
+- **Cloud API:** Authenticated access via `api.engram-ai.dev/v1/synapse/*` (Pro tier)
+- **Self-hosted:** Run your own Synapse server with `synapse-server` (always free)
+- **MCP Integration:** Works with Claude Code, Cursor, and any MCP client
+
+> Self-hosted Synapse is always free. Cloud-hosted Synapse requires [Engram Pro](https://engram-ai.dev/#pricing) (14.90/mo).
 
 ## Community
 
