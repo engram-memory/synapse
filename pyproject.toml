@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "synapse-bus"
+version = "0.1.0"
+description = "Agent-to-Agent Communication Layer — Real-time message bus for AI agents with pub/sub, WebSocket streaming, and MCP integration."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Levent", email = "levent.arslan.001@gmail.com" },
+]
+keywords = ["ai", "agents", "message-bus", "pubsub", "mcp", "websocket", "multi-agent"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+]
+
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+mcp = [
+    "mcp>=1.2.0",
+]
+all = [
+    "synapse-bus[mcp]",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/engram-memory/synapse"
+Documentation = "https://github.com/engram-memory/synapse#readme"
+Repository = "https://github.com/engram-memory/synapse"
+Issues = "https://github.com/engram-memory/synapse/issues"
+
+[project.scripts]
+synapse-server = "synapse.server:run"
+synapse-mcp = "synapse.mcp_server:run_stdio"
+
+[tool.hatch.build.targets.wheel]
+packages = ["synapse"]
+exclude = ["synapse/static", "synapse/tess_monitor.py", "synapse/genesis_bridge.py"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["scripts/", "logs/", "*.service", "tests/"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
