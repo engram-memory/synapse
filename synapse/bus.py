@@ -5,8 +5,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Callable
+from collections.abc import Callable
+from datetime import datetime
 
 from synapse.models import Channel, MessageType, Priority, SynapseMessage
 from synapse.registry import AgentRegistry
@@ -122,7 +122,7 @@ class SynapseBus:
         # Store in history
         self._message_history.append(msg)
         if len(self._message_history) > self._max_history:
-            self._message_history = self._message_history[-self._max_history:]
+            self._message_history = self._message_history[-self._max_history :]
 
         # Deliver to subscribers
         delivered = 0
@@ -134,7 +134,7 @@ class SynapseBus:
             inbox = self._inbox[sub.agent_name]
             inbox.append(msg)
             if len(inbox) > self._max_inbox:
-                self._inbox[sub.agent_name] = inbox[-self._max_inbox:]
+                self._inbox[sub.agent_name] = inbox[-self._max_inbox :]
 
             # Fire callback if registered
             if sub.callback:
@@ -153,21 +153,29 @@ class SynapseBus:
 
         log.info(
             "Published to %s: [%s/%s] from %s → %d subscribers",
-            msg.channel, msg.type.value, msg.priority.name, msg.sender, delivered,
+            msg.channel,
+            msg.type.value,
+            msg.priority.name,
+            msg.sender,
+            delivered,
         )
         return delivered
 
     def publish_sync(self, msg: SynapseMessage) -> int:
         """Synchronous publish — runs the async version in an event loop."""
         try:
-            loop = asyncio.get_running_loop()
-            # Already in async context, schedule it
-            future = asyncio.ensure_future(self.publish(msg))
+            asyncio.get_running_loop()
+            asyncio.ensure_future(self.publish(msg))
             return 0  # Can't wait synchronously in async context
         except RuntimeError:
             return asyncio.run(self.publish(msg))
 
-    def get_inbox(self, agent_name: str, limit: int = 20, channel: str | None = None) -> list[SynapseMessage]:
+    def get_inbox(
+        self,
+        agent_name: str,
+        limit: int = 20,
+        channel: str | None = None,
+    ) -> list[SynapseMessage]:
         msgs = self._inbox.get(agent_name, [])
         if channel:
             msgs = [m for m in msgs if m.channel == channel]

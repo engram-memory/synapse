@@ -7,7 +7,6 @@ import json
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -32,10 +31,26 @@ ws_connections: dict[str, WebSocket] = {}
 
 # Known agents — pre-registered on startup so they always appear on dashboard
 KNOWN_AGENTS = [
-    {"name": "claude-code", "capabilities": ["chat", "coding", "orchestration"], "channels": ["#alerts", "#commands", "#system"]},
-    {"name": "tess", "capabilities": ["trading", "analysis", "signals"], "channels": ["#alerts", "#market-data", "#heartbeat"]},
-    {"name": "jarvis", "capabilities": ["assistant", "telegram", "notifications"], "channels": ["#alerts", "#commands", "#system", "#heartbeat"]},
-    {"name": "genesis", "capabilities": ["cognition", "reasoning", "knowledge", "learning"], "channels": ["#alerts", "#system", "#learning", "#heartbeat"]},
+    {
+        "name": "claude-code",
+        "capabilities": ["chat", "coding", "orchestration"],
+        "channels": ["#alerts", "#commands", "#system"],
+    },
+    {
+        "name": "tess",
+        "capabilities": ["trading", "analysis", "signals"],
+        "channels": ["#alerts", "#market-data", "#heartbeat"],
+    },
+    {
+        "name": "jarvis",
+        "capabilities": ["assistant", "telegram", "notifications"],
+        "channels": ["#alerts", "#commands", "#system", "#heartbeat"],
+    },
+    {
+        "name": "genesis",
+        "capabilities": ["cognition", "reasoning", "knowledge", "learning"],
+        "channels": ["#alerts", "#system", "#learning", "#heartbeat"],
+    },
 ]
 
 
@@ -67,6 +82,7 @@ app = FastAPI(
 
 # --- Pydantic models for API ---
 
+
 class RegisterRequest(BaseModel):
     name: str
     capabilities: list[str] = []
@@ -95,6 +111,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 # --- Dashboard ---
 
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
     html_file = STATIC_DIR / "dashboard.html"
@@ -102,6 +119,7 @@ async def dashboard():
 
 
 # --- Agent endpoints ---
+
 
 @app.post("/agents/register")
 async def register_agent(req: RegisterRequest):
@@ -154,6 +172,7 @@ async def find_by_capability(capability: str):
 
 # --- Message endpoints ---
 
+
 @app.post("/publish")
 async def publish_message(req: PublishRequest):
     msg = SynapseMessage(
@@ -202,6 +221,7 @@ async def clear_inbox(agent_name: str):
 
 # --- Channel endpoints ---
 
+
 @app.get("/channels")
 async def list_channels():
     channels = bus.list_channels()
@@ -227,6 +247,7 @@ async def get_history(channel: str, limit: int = 50):
 
 # --- Stats ---
 
+
 @app.get("/health")
 async def health():
     result = {
@@ -241,6 +262,7 @@ async def health():
 
 
 # --- WebSocket for real-time streaming ---
+
 
 @app.websocket("/ws/{agent_name}")
 async def websocket_endpoint(websocket: WebSocket, agent_name: str):
@@ -319,4 +341,5 @@ async def _heartbeat_loop():
 def run(host: str = "0.0.0.0", port: int = 8200):
     """Start the Synapse server."""
     import uvicorn
+
     uvicorn.run(app, host=host, port=port, log_level="info")

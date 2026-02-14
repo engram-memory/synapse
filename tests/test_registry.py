@@ -75,6 +75,7 @@ def test_check_timeouts():
     reg = AgentRegistry(heartbeat_timeout=0)  # Instant timeout
     reg.register("agent")
     import time
+
     time.sleep(0.01)
     timed_out = reg.check_timeouts()
     assert "agent" in timed_out

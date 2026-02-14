@@ -1,7 +1,6 @@
 """Tests for SynapseClient (unit tests — no server needed)."""
 
 from synapse.client import SynapseClient
-from synapse.models import MessageType, Priority
 
 
 def test_client_init():

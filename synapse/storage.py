@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 from synapse.models import MessageType, Priority, SynapseMessage
@@ -39,22 +39,12 @@ class MessageStore:
                     reply_to TEXT
                 )
             """)
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_msg_channel ON messages(channel)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_msg_ts ON messages(timestamp DESC)")
             conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_msg_channel "
-                "ON messages(channel)"
+                "CREATE INDEX IF NOT EXISTS idx_msg_channel_ts ON messages(channel, timestamp DESC)"
             )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_msg_ts "
-                "ON messages(timestamp DESC)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_msg_channel_ts "
-                "ON messages(channel, timestamp DESC)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_msg_sender "
-                "ON messages(sender)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_msg_sender ON messages(sender)")
             conn.commit()
 
     def store(self, msg: SynapseMessage) -> bool:
@@ -146,11 +136,7 @@ class MessageStore:
             by_channel = conn.execute(
                 "SELECT channel, COUNT(*) as cnt FROM messages GROUP BY channel"
             ).fetchall()
-            db_size = (
-                self.db_path.stat().st_size / (1024 * 1024)
-                if self.db_path.exists()
-                else 0
-            )
+            db_size = self.db_path.stat().st_size / (1024 * 1024) if self.db_path.exists() else 0
         return {
             "total_messages": total,
             "by_channel": {r[0]: r[1] for r in by_channel},

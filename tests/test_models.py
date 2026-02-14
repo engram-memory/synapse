@@ -1,7 +1,5 @@
 """Tests for Synapse data models."""
 
-from datetime import datetime, timezone
-
 from synapse.models import (
     AgentInfo,
     AgentStatus,

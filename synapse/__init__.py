@@ -2,6 +2,8 @@
 
 __version__ = "0.1.0"
 
+from synapse.bus import SynapseBus
+from synapse.client import SynapseClient
 from synapse.models import (
     AgentInfo,
     AgentStatus,
@@ -10,8 +12,6 @@ from synapse.models import (
     Priority,
     SynapseMessage,
 )
-from synapse.client import SynapseClient
-from synapse.bus import SynapseBus
 from synapse.registry import AgentRegistry
 from synapse.storage import MessageStore
 

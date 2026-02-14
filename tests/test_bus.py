@@ -1,7 +1,8 @@
 """Tests for SynapseBus."""
 
 import pytest
-from synapse.bus import SynapseBus, Subscription
+
+from synapse.bus import Subscription, SynapseBus
 from synapse.models import MessageType, Priority, SynapseMessage
 from synapse.registry import AgentRegistry
 

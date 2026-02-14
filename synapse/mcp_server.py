@@ -40,14 +40,27 @@ def get_client() -> SynapseClient:
 TOOLS = [
     {
         "name": "synapse_publish",
-        "description": "Publish a message to a Synapse channel. Channels: #alerts, #market-data, #learning, #commands, #heartbeat, #system (or any custom channel).",
+        "description": (
+            "Publish a message to a Synapse channel. Channels: #alerts, "
+            "#market-data, #learning, #commands, #heartbeat, #system "
+            "(or any custom channel)."
+        ),
         "inputSchema": {
             "type": "object",
             "properties": {
                 "channel": {"type": "string", "description": "Channel name (e.g. #alerts)"},
                 "message": {"type": "string", "description": "Message text or JSON payload"},
-                "type": {"type": "string", "enum": ["alert", "data", "command", "query", "response", "event"], "default": "event"},
-                "priority": {"type": "integer", "enum": [0, 1, 2, 3, 4], "default": 2, "description": "0=CRITICAL, 1=HIGH, 2=NORMAL, 3=LOW, 4=BACKGROUND"},
+                "type": {
+                    "type": "string",
+                    "default": "event",
+                    "enum": ["alert", "data", "command", "query", "response", "event"],
+                },
+                "priority": {
+                    "type": "integer",
+                    "enum": [0, 1, 2, 3, 4],
+                    "default": 2,
+                    "description": "0=CRITICAL, 1=HIGH, 2=NORMAL, 3=LOW, 4=BACKGROUND",
+                },
             },
             "required": ["channel", "message"],
         },
@@ -124,6 +137,7 @@ def handle_tool_call(name: str, arguments: dict) -> str:
                 payload = {"message": payload}
 
             from synapse.models import MessageType, Priority
+
             result = c.publish(
                 channel=arguments["channel"],
                 payload=payload,
@@ -182,6 +196,7 @@ def handle_tool_call(name: str, arguments: dict) -> str:
 
 # --- MCP stdio protocol ---
 
+
 def send_response(id: int | str, result: dict):
     msg = json.dumps({"jsonrpc": JSONRPC_VERSION, "id": id, "result": result})
     sys.stdout.write(f"{msg}\n")
@@ -189,7 +204,8 @@ def send_response(id: int | str, result: dict):
 
 
 def send_error(id: int | str, code: int, message: str):
-    msg = json.dumps({"jsonrpc": JSONRPC_VERSION, "id": id, "error": {"code": code, "message": message}})
+    error = {"code": code, "message": message}
+    msg = json.dumps({"jsonrpc": JSONRPC_VERSION, "id": id, "error": error})
     sys.stdout.write(f"{msg}\n")
     sys.stdout.flush()
 
@@ -210,11 +226,14 @@ def run_stdio():
         method = request.get("method", "")
 
         if method == "initialize":
-            send_response(req_id, {
-                "protocolVersion": MCP_PROTOCOL_VERSION,
-                "capabilities": {"tools": {}},
-                "serverInfo": {"name": "synapse", "version": "0.1.0"},
-            })
+            send_response(
+                req_id,
+                {
+                    "protocolVersion": MCP_PROTOCOL_VERSION,
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "synapse", "version": "0.1.0"},
+                },
+            )
 
         elif method == "notifications/initialized":
             pass  # No response needed
@@ -227,9 +246,12 @@ def run_stdio():
             tool_name = params.get("name", "")
             arguments = params.get("arguments", {})
             result_text = handle_tool_call(tool_name, arguments)
-            send_response(req_id, {
-                "content": [{"type": "text", "text": result_text}],
-            })
+            send_response(
+                req_id,
+                {
+                    "content": [{"type": "text", "text": result_text}],
+                },
+            )
 
         elif method == "resources/list":
             send_response(req_id, {"resources": []})

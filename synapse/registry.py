@@ -75,7 +75,8 @@ class AgentRegistry:
 
     def find_by_capability(self, capability: str) -> list[AgentInfo]:
         return [
-            a for a in self._agents.values()
+            a
+            for a in self._agents.values()
             if capability in a.capabilities and a.status == AgentStatus.ONLINE
         ]
 

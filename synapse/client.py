@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 import logging
+import urllib.error
+import urllib.request
 from typing import Any
 
-import urllib.request
-import urllib.error
-
-from synapse.models import MessageType, Priority, SynapseMessage
+from synapse.models import MessageType, Priority
 
 log = logging.getLogger(__name__)
 
@@ -51,12 +50,16 @@ class SynapseClient:
         channels: list[str] | None = None,
         metadata: dict | None = None,
     ) -> dict:
-        return self._request("POST", "/agents/register", {
-            "name": self.agent_name,
-            "capabilities": capabilities or [],
-            "channels": channels or [],
-            "metadata": metadata or {},
-        })
+        return self._request(
+            "POST",
+            "/agents/register",
+            {
+                "name": self.agent_name,
+                "capabilities": capabilities or [],
+                "channels": channels or [],
+                "metadata": metadata or {},
+            },
+        )
 
     def heartbeat(self) -> dict:
         return self._request("POST", f"/agents/{self.agent_name}/heartbeat")
@@ -80,27 +83,36 @@ class SynapseClient:
     ) -> dict:
         if isinstance(payload, str):
             payload = {"message": payload}
-        return self._request("POST", "/publish", {
-            "channel": channel,
-            "sender": self.agent_name,
-            "payload": payload,
-            "type": type.value,
-            "priority": priority.value,
-            "ttl": ttl,
-            "reply_to": reply_to,
-        })
+        return self._request(
+            "POST",
+            "/publish",
+            {
+                "channel": channel,
+                "sender": self.agent_name,
+                "payload": payload,
+                "type": type.value,
+                "priority": priority.value,
+                "ttl": ttl,
+                "reply_to": reply_to,
+            },
+        )
 
     def subscribe(self, channel: str, priority_min: Priority = Priority.BACKGROUND) -> dict:
-        return self._request("POST", "/subscribe", {
-            "agent_name": self.agent_name,
-            "channel": channel,
-            "priority_min": priority_min.value,
-        })
+        return self._request(
+            "POST",
+            "/subscribe",
+            {
+                "agent_name": self.agent_name,
+                "channel": channel,
+                "priority_min": priority_min.value,
+            },
+        )
 
     # --- Inbox ---
 
     def inbox(self, limit: int = 20, channel: str | None = None) -> list[dict]:
         from urllib.parse import quote
+
         path = f"/inbox/{self.agent_name}?limit={limit}"
         if channel:
             path += f"&channel={quote(channel, safe='')}"
@@ -116,6 +128,7 @@ class SynapseClient:
 
     def history(self, channel: str, limit: int = 50) -> list[dict]:
         from urllib.parse import quote
+
         return self._request("GET", f"/history/{quote(channel, safe='')}?limit={limit}")["messages"]
 
     # --- Health ---
