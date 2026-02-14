@@ -161,6 +161,12 @@ pytest
 
 Synapse is the communication backbone for [Engram](https://github.com/engram-memory/engram) — the universal memory layer for AI agents. Together they enable persistent, communicating multi-agent systems.
 
+## Community
+
+- [Discord](https://discord.gg/Kba2bGbZt5) — Chat, support, feature requests
+- [GitHub Issues](https://github.com/engram-memory/synapse/issues) — Bug reports & feature requests
+- [Email](mailto:support@engram-ai.dev) — support@engram-ai.dev
+
 ## License
 
 MIT
